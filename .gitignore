@@ -9,7 +9,7 @@
 /coverage
 # production
 /build
-
+/src/services/firebaseConfig.js
 # misc
 .DS_Store
 .env.local
