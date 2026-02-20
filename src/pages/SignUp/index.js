@@ -9,6 +9,15 @@ export default function SignUp() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
+    function handleSubmit(e) {
+      e.preventDefault();
+
+      if(name !== '' && email !== '' && password !== '') {
+        alert('Usuário cadastrado com sucesso!');
+        return;
+      }
+    }
+
 
   return (
     <div className='container-center'>
@@ -16,7 +25,7 @@ export default function SignUp() {
         <div className='login-area'>
           <img src={logo} alt='Logo do sistema' />
         </div>
-        <form>
+        <form onSubmit={handleSubmit}>
           <h1>Cadastrar novo usuário</h1>
           <input 
           type='text' 
