@@ -27,6 +27,7 @@ function AuthProvider({ children }) {
             setLoading(false);
         
         }
+        loadUser();
     }, []);
 
     // Fazer login do usuário.
