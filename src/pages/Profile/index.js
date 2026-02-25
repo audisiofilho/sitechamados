@@ -1,10 +1,15 @@
 import { useContext, useState } from 'react'
 import Header from '../../components/Header'
 import Title from '../../components/Title'
+import { toast } from 'react-toastify'
 
 import { FiSettings, FiUpload} from 'react-icons/fi'
 import avatarImg from '../../assets/avatar.png'
 import { AuthContext } from '../../contexts/auth'
+
+import { db, storage } from '../../services/firebaseConnection'
+import {doc, updateDoc} from 'firebase/firestore'
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 
 import './profile.css'
 
@@ -31,6 +36,61 @@ export default function Profile() {
         }
     }
 
+    async function handleUpload() {
+        const currentUid = user.uid;
+        const uploadRef = ref(storage, `images/${currentUid}/${imageAvatar.name}`);
+
+        const uploadTask = await uploadBytes(uploadRef, imageAvatar)
+        .then((snapshot)=>{
+            getDownloadURL(snapshot.ref).then(async (downloadURL)=>{
+                let urlFoto = downloadURL;
+
+                const docRef = doc(db, "users", user.uid);
+                await updateDoc(docRef, {
+                    avatarUrl: urlFoto,
+                    name: name,
+            })
+            .then(()=>{
+                let data = {
+                    ...user,
+                    avatarUrl: urlFoto,
+                    name: name,
+                }
+                setUser(data);
+                storageUser(data);
+                toast.success('Perfil atualizado com sucesso!');
+            })
+            })  
+        })
+    }
+
+    
+
+    async function handleSubmit(e) {
+        e.preventDefault();
+
+        if(imageAvatar === null && name !== ''){
+            //atualizar apenas o nome do usuário.
+            const docRef = doc(db, "users", user.uid);
+            await updateDoc(docRef, {
+                name: name,
+            })
+            .then(()=>{
+                let data = {
+                    ...user,
+                    name: name,
+                }
+
+                setUser(data);
+                storageUser(data);
+                toast.success('Perfil atualizado com sucesso!');
+            })
+        }else if(name !== '' && imageAvatar !== null){
+            //atualizar o nome e a foto do usuário.
+            handleUpload();
+        }
+    }
+
     return (
         <div>
             <Header />
@@ -40,7 +100,7 @@ export default function Profile() {
                 </Title>
 
                 <div className='container'>
-                    <form className='form-profile'>
+                    <form className='form-profile' onSubmit={handleSubmit}>
                         <label className='label-avatar'>
                             <span>
                                 <FiUpload color='#fff' size={25}/>
