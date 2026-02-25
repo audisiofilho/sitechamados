@@ -9,9 +9,28 @@ import { AuthContext } from '../../contexts/auth'
 import './profile.css'
 
 export default function Profile() {
-    const { user } = useContext(AuthContext);
+    const { user, storageUser, setUser, logout } = useContext(AuthContext);
 
     const [avatarUrl, setAvatarUrl] = useState(user && user.avatarUrl);
+    const [imageAvatar, setImageAvatar] = useState(null);
+    const [name, setName] =useState(user && user.name);
+    const [email, setEmail] =useState(user && user.email);
+
+    function handleFile(e) {
+        if(e.target.files[0]){
+            const image = e.target.files[0];
+
+            if(image.type === 'image/jpeg' || image.type === 'image/png'){
+                setImageAvatar(image);
+                setAvatarUrl(URL.createObjectURL(image));
+            }else{
+                alert('Envie uma imagem do tipo PNG ou JPEG');
+                setImageAvatar(null);
+                return;
+            }
+        }
+    }
+
     return (
         <div>
             <Header />
@@ -26,7 +45,7 @@ export default function Profile() {
                             <span>
                                 <FiUpload color='#fff' size={25}/>
                             </span>
-                            <input type='file' accept='image/*'/><br/>
+                            <input type='file' accept='image/*' onChange={handleFile}/><br/>
                             {avatarUrl === null ? (
                                 <img src={avatarImg} alt='Avatar do usuário' width={250} height={250}/>
                             ) :(
@@ -36,16 +55,16 @@ export default function Profile() {
                         </label>
 
                         <label>Nome</label>
-                        <input type='text' value={user && user.name} />
+                        <input type='text' value={name} onChange={(e)=> setName(e.target.value)}/>
 
                         <label>Email</label>
-                        <input type='text' value={user && user.email} disabled={true} />
+                        <input type='text' value={email} disabled={true} />
 
                         <button type='submit'>Salvar</button>
                     </form>
                 </div>
                 <div className='container'>
-                    <button className='logout-btn' type='submit'>Sair</button>
+                    <button className='logout-btn' type='submit' onClick={()=> logout()}>Sair</button>
                 </div>
             </div>
         </div>
